@@ -32,9 +32,12 @@ class ViewController: UIViewController, UITextViewDelegate {
     var isFirstNumber = true
     var lastAnswer = 0.0
     var isPow = false
+    var powCount = 0
     
     let font:UIFont? = UIFont.systemFont(ofSize: 28)
     let fontSuper:UIFont? = UIFont.systemFont(ofSize: 14)
+    
+    var attString = NSMutableAttributedString()
     
     var numberArray = [Double]()
     var operationArray1 = [String]()
@@ -110,6 +113,7 @@ class ViewController: UIViewController, UITextViewDelegate {
             currentConsoleLbl.font = font
             currentConsoleLbl.textColor = UIColor.white
             currentConsoleLbl.backgroundColor = UIColor(white: 0.1, alpha: 1)
+            currentConsoleLbl.isScrollEnabled = false
             //currentConsoleLbl.translatesAutoresizingMaskIntoConstraints = false
             scrollView.addSubview(currentConsoleLbl)
             NSLayoutConstraint.activate([
@@ -128,12 +132,16 @@ class ViewController: UIViewController, UITextViewDelegate {
         
         switch tagArray[sender.tag] {
         case "0","1","2","3","4","5","6","7","8","9":
+            runningNumber += "\(sender.tag)"
+            currentNumber += "\(sender.tag)"
+            currentConsoleLbl.insertText("\(sender.tag)")
             if isPow == true {
-                
-            } else {
-                currentConsoleLbl.insertText("\(sender.tag)")
-                runningNumber += "\(sender.tag)"
-                currentNumber += "\(sender.tag)"
+                currentConsoleLbl.font = fontSuper
+                attString = NSMutableAttributedString(string: "\(runningNumber)", attributes: [.font:font!])
+                attString.setAttributes([.font:fontSuper!,.baselineOffset:14], range: NSRange(location:runningNumber.count-powCount, length:powCount))
+                currentConsoleLbl.attributedText = attString
+                currentConsoleLbl.textColor = UIColor.white
+                powCount += 1
             }
         case "+":
             operationType = "+"
@@ -145,6 +153,7 @@ class ViewController: UIViewController, UITextViewDelegate {
             operationType = "/"
         case "=":
             numEquations += 1
+            currentConsoleLbl.font = font
             if Int(scrollView.contentSize.height)-50 < (numEquations)*100 {
                 scrollView.contentSize = CGSize(width:self.view.frame.size.width, height:scrollView.contentSize.height + 100)
             }
@@ -245,11 +254,12 @@ class ViewController: UIViewController, UITextViewDelegate {
         case "POW":
             if isPow == false {
                 currentConsoleLbl.font = fontSuper
-                let attString:NSMutableAttributedString = NSMutableAttributedString(string: "\(runningNumber)", attributes: [.font:font!])
-                attString.setAttributes([.font:fontSuper!,.baselineOffset:14], range: NSRange(location:runningNumber.count,length:0))
+                attString = NSMutableAttributedString(string: "\(runningNumber)", attributes: [.font:font!])
+                attString.setAttributes([.font:fontSuper!,.baselineOffset:14], range: NSRange(location:runningNumber.count,length:powCount))
                 currentConsoleLbl.attributedText = attString
                 currentConsoleLbl.textColor = UIColor.white
                 isPow = true
+                powCount = 1
             } else {
                 currentConsoleLbl.font = font
                 isPow = false
@@ -261,7 +271,17 @@ class ViewController: UIViewController, UITextViewDelegate {
         }
         if operationType == "+" || operationType == "–" || operationType == "·" || operationType == "/" {
             runningNumber += operationType
-            currentConsoleLbl.text = runningNumber
+            if isPow == true {
+                currentConsoleLbl.font = fontSuper
+                attString = NSMutableAttributedString(string: "\(runningNumber)", attributes: [.font:font!])
+                attString.setAttributes([.font:fontSuper!,.baselineOffset:14], range: NSRange(location:runningNumber.count-powCount,length:powCount))
+                currentConsoleLbl.attributedText = attString
+                currentConsoleLbl.textColor = UIColor.white
+                powCount += 1
+                print("Through")
+            } else {
+                currentConsoleLbl.text = runningNumber
+            }
             if currentNumber == "" {
                 numEquations += 1
                 if Int(scrollView.contentSize.height)-50 < (numEquations)*100 {
@@ -319,6 +339,8 @@ class ViewController: UIViewController, UITextViewDelegate {
         count = 0
         result = 0
         numDeleted = 0
+        isPow = false
+        powCount = 0
     }
     
     func calculate() {
