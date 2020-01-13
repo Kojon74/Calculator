@@ -1,5 +1,5 @@
 # Calculator
 iOS application of simple calculator.
 
-![](Images/4TGxh.png)
-![](Images/6cJLK.png)
+<img src="Images/4TGxh.png" height="700"> <img src="Images/6cJLK.png" height="700">
+
